@@ -11,6 +11,8 @@
     const markedFontColor = "#FF4136" // Marked bbox font color
     const markedBorderColor = "#FF4136" // Marked bbox border color
     const markedBackgroundColor = "rgba(255, 133, 27, 0.2)" // Marked bbox fill color
+    const selectedClassBorderColor = "#36ff48" // Marked bbox border color
+    const selectedClassBackgroundColor = "rgba(54, 255, 72, 0.2)" // Marked bbox fill color 
     const minBBoxWidth = 5 // Minimal width of bbox
     const minBBoxHeight = 5 // Minimal height of bbox
     const scrollSpeed = 1.1 // Multiplying factor of wheel speed
@@ -61,7 +63,7 @@
         e.preventDefault()
     }, false)
 
-    const isSupported = ()  => {
+    const isSupported = () => {
         try {
             const key = "__some_random_key_1234%(*^()^)___"
 
@@ -141,7 +143,7 @@
             const width = (mouse.realX - mouse.startRealX)
             const height = (mouse.realY - mouse.startRealY)
 
-            setBBoxStyles(context, true)
+            setBBoxStyles(context, true, false)
             context.strokeRect(zoomX(mouse.startRealX), zoomY(mouse.startRealY), zoom(width), zoom(height))
             context.fillRect(zoomX(mouse.startRealX), zoomY(mouse.startRealY), zoom(width), zoom(height))
 
@@ -159,7 +161,11 @@
                 setFontStyles(context, bbox.marked)
                 context.fillText(className, zoomX(bbox.x), zoomY(bbox.y - 2))
 
-                setBBoxStyles(context, bbox.marked)
+                let selectedClass = false;
+                if (currentClass && currentClass === className) {
+                    selectedClass = true
+                }
+                setBBoxStyles(context, bbox.marked, selectedClass)
                 context.strokeRect(zoomX(bbox.x), zoomY(bbox.y), zoom(bbox.width), zoom(bbox.height))
                 context.fillRect(zoomX(bbox.x), zoomY(bbox.y), zoom(bbox.width), zoom(bbox.height))
 
@@ -205,8 +211,9 @@
         }
     }
 
-    const setBBoxStyles = (context, marked) => {
+    const setBBoxStyles = (context, marked, selectedClass) => {
         context.setLineDash([])
+
 
         if (marked === false) {
             context.strokeStyle = borderColor
@@ -214,6 +221,11 @@
         } else {
             context.strokeStyle = markedBorderColor
             context.fillStyle = markedBackgroundColor
+        }
+
+        if (marked === false && selectedClass) {
+            context.strokeStyle = selectedClassBorderColor
+            context.fillStyle = selectedClassBackgroundColor
         }
     }
 
@@ -235,7 +247,7 @@
     }
 
     const listenCanvasMouse = () => {
-        canvas.element.addEventListener("wheel", trackWheel, {passive: false})
+        canvas.element.addEventListener("wheel", trackWheel, { passive: false })
         canvas.element.addEventListener("mousemove", trackPointer)
         canvas.element.addEventListener("mousedown", trackPointer)
         canvas.element.addEventListener("mouseup", trackPointer)
@@ -542,7 +554,7 @@
         }
     }
 
-    const panImage= (xx, yy) => {
+    const panImage = (xx, yy) => {
         if (mouse.buttonR === true) {
             canvasX -= mouse.realX - xx
             canvasY -= mouse.realY - yy
@@ -844,7 +856,7 @@
                         }
                     })
 
-                    if (extension === "txt" || extension === "xml"  || extension === "json") {
+                    if (extension === "txt" || extension === "xml" || extension === "json") {
                         reader.readAsText(files[i])
                     } else {
                         reader.readAsArrayBuffer(event.target.files[i])
@@ -1038,7 +1050,7 @@
                 zip.file(name.join("."), result.join("\n"))
             }
 
-            zip.generateAsync({type: "blob"})
+            zip.generateAsync({ type: "blob" })
                 .then((blob) => {
                     saveAs(blob, "bboxes_yolo.zip")
                 })
@@ -1104,7 +1116,7 @@
                 }
             }
 
-            zip.generateAsync({type: "blob"})
+            zip.generateAsync({ type: "blob" })
                 .then((blob) => {
                     saveAs(blob, "bboxes_voc.zip")
                 })
@@ -1171,7 +1183,7 @@
                 zip.file("coco.json", JSON.stringify(result))
             }
 
-            zip.generateAsync({type: "blob"})
+            zip.generateAsync({ type: "blob" })
                 .then((blob) => {
                     saveAs(blob, "bboxes_coco.zip")
                 })
@@ -1375,7 +1387,7 @@
                                     if (--x === 0) {
                                         document.body.style.cursor = "default"
 
-                                        zip.generateAsync({type: "blob"})
+                                        zip.generateAsync({ type: "blob" })
                                             .then((blob) => {
                                                 saveAs(blob, "crops.zip")
                                             })
